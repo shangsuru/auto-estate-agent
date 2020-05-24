@@ -34,3 +34,4 @@ Optional arguments:
 | -s SPACE | set the minimum living space |
 | --shared | search for a shared flat |
 | --own | search for your own flat (default) |
+| -nv | changes to nonverbose mode |

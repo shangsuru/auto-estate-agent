@@ -6,6 +6,9 @@ import os
 from subprocess import call
 import time
 from dotenv import load_dotenv
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import Select
 
 
 def get_arguments():
@@ -25,6 +28,8 @@ def get_arguments():
                         help='search for a shared flat')
     parser.add_argument('--own', action='store_true',
                         help='search for your own flat (default)')
+    parser.add_argument('-nv', action='store_true',
+                        help='changes to nonverbose mode')
 
     args = parser.parse_args()
 
@@ -64,15 +69,15 @@ def clear():
 def print_start_message():
     clear()
     print('\nWelcome to')
-    print('''  
-  ___        _          _____    _        _          ___                   _   
- / _ \      | |        |  ___|  | |      | |        / _ \                 | |  
-/ /_\ \_   _| |_ ___   | |__ ___| |_ __ _| |_ ___  / /_\ \ __ _  ___ _ __ | |_ 
+    print('''
+  ___        _          _____    _        _          ___                   _
+ / _ \      | |        |  ___|  | |      | |        / _ \                 | |
+/ /_\ \_   _| |_ ___   | |__ ___| |_ __ _| |_ ___  / /_\ \ __ _  ___ _ __ | |_
 |  _  | | | | __/ _ \  |  __/ __| __/ _` | __/ _ \ |  _  |/ _` |/ _ \ '_ \| __|
-| | | | |_| | || (_) | | |__\__ \ || (_| | ||  __/ | | | | (_| |  __/ | | | |_ 
+| | | | |_| | || (_) | | |__\__ \ || (_| | ||  __/ | | | | (_| |  __/ | | | |_
 \_| |_/\__,_|\__\___/  \____/___/\__\__,_|\__\___| \_| |_/\__, |\___|_| |_|\__|
-                                                           __/ |               
-                                                          |___/                
+                                                           __/ |
+                                                          |___/
     ''')
     print('\t\t\t\t\t\t\t\tby Henry Helm')
 
@@ -132,7 +137,72 @@ def print_query(args):
             sys.exit()
 
 
+def login():
+    global browser
+    browser.get('https://sso.immobilienscout24.de/sso/login?appName=is24main')
+    browser.find_element_by_id('username').send_keys(os.getenv('EMAIL'))
+    browser.find_element_by_id('submit').click()
+    time.sleep(3)
+    browser.find_element_by_id('password').send_keys(os.getenv('PASSWORD'))
+    browser.find_element_by_id('loginOrRegistration').click()
+
+
+def search():
+    global browser, args
+    browser.get('https://www.immobilienscout24.de/')
+    browser.find_element_by_id('oss-price').send_keys(args.rent)
+    browser.find_element_by_id('oss-area').send_keys(args.space)
+    typeSelect = Select(browser.find_element_by_id(
+        'oss-real-estate-type-rent'))
+    if args.own:
+        typeSelect.select_by_value('APARTMENT_RENT')
+    else:
+        typeSelect.select_by_value('FLAT_SHARE_ROOM')
+    cityInput = browser.find_element_by_id('oss-location')
+    cityInput.send_keys(args.city)
+    time.sleep(1)
+    cityInput.send_keys(Keys.ENTER)
+    time.sleep(1)
+    browser.find_element_by_xpath(
+        '//button[contains(@class, "oss-main-criterion oss-button button-primary one-whole")]').click()
+
+
+def get_expose_links():
+    global browser
+
+    def find_exposes():  # find all expose links on a single page
+        global browser
+        time.sleep(3)
+        link_tags = browser.find_elements_by_xpath('//a[@href]')
+        links = map(lambda link: link.get_attribute('href'), link_tags)
+        expose_links = list(filter(lambda href: '/expose' in href, links))
+        return expose_links
+
+    expose_links = []
+    expose_links.extend(find_exposes())
+    while True:  # loop through all result pages
+        time.sleep(2)
+        try:
+            browser.find_element_by_xpath(
+                '//span[contains(text(), "nächste Seite")]').click()
+            expose_links.extend(find_exposes())
+        except Exception:  # if there is no next page button to be found
+            break
+
+    # eliminate duplicates
+    expose_links = list(dict.fromkeys(expose_links))
+    return expose_links
+
+
 load_dotenv()
 args = get_arguments()
-print_start_message()
-print_query(args)
+if not args.nv:  # disable those in nonverbose mode
+    print_start_message()
+    print_query(args)
+
+browser = webdriver.Chrome(os.getcwd() + '/chromedriver')
+
+login()
+search()
+expose_links = get_expose_links()
+print(expose_links)
