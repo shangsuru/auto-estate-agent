@@ -14,20 +14,23 @@ Use the package and environment manager [conda](https://docs.conda.io/en/latest/
 conda env create -f environment.yml
 ```
 
+Also set your name inside the environment file.
+
 ## Usage
 
 ```bash
-python estate-agent.py [-h] [-t TEXT] [-r RENT] [-s SPACE] [--shared] [--own]
-                       city
+python estate-agent.py [-h] [-t TEXT] [-r RENT] [-s SPACE] [--shared] [--own] city
 ```
 
-positional arguments:
-city specify where to search for a flat
+| Positional arguments: |
+| --------------------- |
+| city                  | specify where to search for a flat |
 
-optional arguments:
--h, --help show this help message and exit
--t TEXT set the text to write to the owners
--r RENT set the maximum net rent
--s SPACE set the minimum living space
---shared search for a shared flat
---own search for your own flat
+| Optional arguments: |
+| ------------------- |
+| -h, --help          | show this help message and exit |
+| -t TEXT             | set the text to write to the owners |
+| -r RENT             | set the maximum net rent |
+| -s SPACE            | set the minimum living space |
+| --shared            | search for a shared flat |
+| --own               | search for your own flat |

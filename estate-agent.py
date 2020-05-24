@@ -2,9 +2,10 @@
 # -*- coding:utf-8 -*-
 import argparse
 import sys
-from os import path, name
+import os
 from subprocess import call
 import time
+from dotenv import load_dotenv
 
 
 def get_arguments():
@@ -39,7 +40,7 @@ def get_arguments():
         file = open('message.txt', 'w')
         file.write(args.text)
         file.close()
-    elif path.isfile('message.txt') and path.getsize('message.txt') != 0:
+    elif os.path.isfile('message.txt') and os.path.getsize('message.txt') != 0:
         # when argument is not provided, take the saved text in the file
         file = open('message.txt', 'r')
         args.text = file.read()
@@ -57,7 +58,7 @@ def get_arguments():
 
 
 def clear():
-    _ = call('clear' if name == 'posix' else 'cls')
+    _ = call('clear' if os.name == 'posix' else 'cls')
 
 
 def print_start_message():
@@ -121,9 +122,10 @@ def print_query(args):
     print('Sehr geehrter Herr/Frau...\n')
     print(args.text)
     print('\nMit freundlichen Grüßen')
-    print('Henry Helm')
+    print(os.getenv('NAME'))
 
 
+load_dotenv()
 args = get_arguments()
 print_start_message()
 print_query(args)
