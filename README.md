@@ -33,4 +33,4 @@ Optional arguments:
 | -r RENT | set the maximum net rent |
 | -s SPACE | set the minimum living space |
 | --shared | search for a shared flat |
-| --own | search for your own flat |
+| --own | search for your own flat (default) |

@@ -24,7 +24,7 @@ def get_arguments():
     parser.add_argument('--shared', action='store_true',
                         help='search for a shared flat')
     parser.add_argument('--own', action='store_true',
-                        help='search for your own flat')
+                        help='search for your own flat (default)')
 
     args = parser.parse_args()
 
