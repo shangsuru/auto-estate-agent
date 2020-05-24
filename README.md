@@ -14,7 +14,7 @@ Use the package and environment manager [conda](https://docs.conda.io/en/latest/
 conda env create -f environment.yml
 ```
 
-Also set your name inside the environment file.
+Also set your name inside the .env file.
 
 ## Usage
 
