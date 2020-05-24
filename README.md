@@ -26,6 +26,7 @@ Positional arguments:
 | city | specify where to search for a flat |
 
 Optional arguments:
+|------------|-------------------------------------|
 | -h, --help | show this help message and exit |
 | -t TEXT | set the text to write to the owners |
 | -r RENT | set the maximum net rent |
