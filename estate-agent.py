@@ -92,7 +92,7 @@ def print_start_message():
    ~ ~~~~~~~~ ~ ~ ~~ ~ ~ ~ ~ ~~~ \   \o\=   ~~ ~~  ~~ ~ ~~
 ~ ~ ~ ~~~~~~~ ~  ~~ ~~ ~ ~~ ~ ~ ~~ ~ ~ ~~ ~~~ ~ ~ ~ ~ ~~~~
     ''')
-    time.sleep(5)
+    time.sleep(4)
     clear()  # clears the console
 
 
@@ -115,7 +115,7 @@ def print_query(args):
     else:
         print(u'Minimum living space:\t%dm\u00b2\n' % args.space)
 
-    time.sleep(2)
+    time.sleep(1)
 
     print('\n\nWhat you write to the owners:')
     print('=====================================\n')
@@ -123,6 +123,13 @@ def print_query(args):
     print(args.text)
     print('\nMit freundlichen Grüßen')
     print(os.getenv('NAME'))
+
+    while True:
+        choice = input('Do you want to start searching? [y/N]\t')
+        if choice.lower() == 'y' or choice.lower() == 'yes':
+            break
+        else:
+            sys.exit()
 
 
 load_dotenv()
