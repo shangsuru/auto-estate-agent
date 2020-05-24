@@ -194,6 +194,40 @@ def get_expose_links():
     return expose_links
 
 
+def save_expose_info(link, file):
+    global browser
+    browser.get(link)
+    time.sleep(2)
+    title = browser.find_element_by_id('expose-title').text
+    address = browser.find_element_by_xpath(
+        '//span[contains(@class, "zip-region-and-country")]').text
+    owner = browser.find_element_by_css_selector(
+        'div[data-qa="contactName"]').text
+    net_rent = browser.find_element_by_xpath(
+        '//div[contains(@class, "is24qa-kaltmiete is24-value font-semibold is24-preis-value")]').text
+    total_rent = browser.find_element_by_xpath(
+        '//dd[contains(@class, "is24qa-gesamtmiete grid-item three-fifths font-bold")]').text
+    rooms = browser.find_element_by_xpath(
+        '//div[contains(@class, "is24qa-zi is24-value font-semibold")]').text
+    area = browser.find_element_by_xpath(
+        '//div[contains(@class, "is24qa-flaeche is24-value font-semibold")]').text
+    try:
+        object_description = browser.find_element_by_xpath(
+            '//pre[contains(@class, "is24qa-objektbeschreibung text-content full-text")]').text
+    except Exception:
+        object_description = 'Object description is missing.'
+
+    file.write(title + '\n')
+    file.write('==============================================\n')
+    file.write('Address:\t\t' + address + '\n')
+    file.write('Owner:\t\t' + owner + '\n')
+    file.write('Net rent:\t\t' + net_rent + '\n')
+    file.write('Total rent:\t\t' + total_rent + '\n')
+    file.write('Rooms:\t\t' + rooms + '\n')
+    file.write('Area:\t\t' + area + '\n')
+    file.write('Object Description:\n' + object_description + '\n\n')
+
+
 load_dotenv()
 args = get_arguments()
 if not args.nv:  # disable those in nonverbose mode
@@ -205,4 +239,11 @@ browser = webdriver.Chrome(os.getcwd() + '/chromedriver')
 login()
 search()
 expose_links = get_expose_links()
-print(expose_links)
+
+log_file = 'log_' + str(int(time.time())) + '.txt'
+file = open('logs/' + log_file, 'a+')
+
+for link in expose_links:
+    save_expose_info(link, file)
+
+file.close()
