@@ -127,7 +127,7 @@ def print_query(args):
     print('Sehr geehrter Herr/Frau...\n')
     print(args.text)
     print('\nMit freundlichen Grüßen')
-    print(os.getenv('NAME'))
+    print(os.getenv('FIRSTNAME') + ' ' + os.getenv('LASTNAME'))
 
     while True:
         choice = input('Do you want to start searching? [y/N]\t')
@@ -227,6 +227,8 @@ def save_expose_info(link, file):
     file.write('Area:\t\t' + area + '\n')
     file.write('Object Description:\n' + object_description + '\n\n')
 
+    return owner
+
 
 load_dotenv()
 args = get_arguments()
@@ -240,10 +242,34 @@ login()
 search()
 expose_links = get_expose_links()
 
+# log file to save retrieved exposes
 log_file = 'log_' + str(int(time.time())) + '.txt'
 file = open('logs/' + log_file, 'a+')
 
 for link in expose_links:
-    save_expose_info(link, file)
+    owner = save_expose_info(link, file)
+
+    # fill out the contact form
+    browser.find_element_by_css_selector('a[data-qa="sendButton"]').click()
+    time.sleep(2)
+    browser.find_element_by_id(
+        'contactForm-Message').send_keys(owner + ',\n' + args.text)
+    Select(browser.find_element_by_id('contactForm-salutation')
+           ).select_by_value(os.getenv('GENDER'))
+    browser.find_element_by_id(
+        'contactForm-firstName').send_keys(os.getenv('FIRSTNAME'))
+    browser.find_element_by_id(
+        'contactForm-lastName').send_keys(os.getenv('LASTNAME'))
+    browser.find_element_by_id(
+        'contactForm-emailAddress').send_keys(os.getenv('EMAIL'))
+    browser.find_element_by_id(
+        'contactForm-street').send_keys(os.getenv('STREET'))
+    browser.find_element_by_id(
+        'contactForm-houseNumber').send_keys(os.getenv('NR'))
+    browser.find_element_by_id(
+        'contactForm-postcode').send_keys(os.getenv('ZIP'))
+    browser.find_element_by_id('contactForm-city').send_keys(os.getenv('CITY'))
+
 
 file.close()
+browser.quit()
