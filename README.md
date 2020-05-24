@@ -27,7 +27,6 @@ Positional arguments:
 
 Optional arguments:
 | -h, --help | show this help message and exit |
-|------------|-------------------------------------|
 | -t TEXT | set the text to write to the owners |
 | -r RENT | set the maximum net rent |
 | -s SPACE | set the minimum living space |
