@@ -24,12 +24,12 @@ def get_arguments():
                         help='set the maximum net rent')
     parser.add_argument('-s', dest='space', type=int,
                         help='set the minimum living space')
+    parser.add_argument('-a', dest='area', type=int,
+                        help='set the search area in km')
     parser.add_argument('--shared', action='store_true',
                         help='search for a shared flat')
     parser.add_argument('--own', action='store_true',
                         help='search for your own flat (default)')
-    parser.add_argument('-nv', action='store_true',
-                        help='changes to nonverbose mode')
 
     args = parser.parse_args()
 
@@ -54,10 +54,17 @@ def get_arguments():
             '\n\t[-] Please provide the text to write to the owners using the -t argument.\n')
         sys.exit()
 
+    # set defaults for space and rent
     if not args.space:
         args.space = 0
     if not args.rent:
         args.rent = 0  # treated as infinity
+
+    # change chosen area to closest available option
+    options = [1, 2, 3, 4, 5, 10, 15, 20, 50]
+    distances = list(map(lambda option: abs(args.area - option), options))
+    args.area = options[distances.index(
+        min(distances))]
 
     return args
 
@@ -120,14 +127,15 @@ def print_query(args):
     else:
         print(u'Minimum living space:\t%dm\u00b2\n' % args.space)
 
+    print('Search area:\t\t%d' % args.area)
     time.sleep(1)
 
     print('\n\nWhat you write to the owners:')
     print('=====================================\n')
-    print('Sehr geehrter Herr/Frau...\n')
+    print('<Name des Vermieters>,\n')
     print(args.text)
     print('\nMit freundlichen Grüßen')
-    print(os.getenv('FIRSTNAME') + ' ' + os.getenv('LASTNAME'))
+    print(os.getenv('FIRSTNAME') + ' ' + os.getenv('LASTNAME') + '\n')
 
     while True:
         choice = input('Do you want to start searching? [y/N]\t')
@@ -150,19 +158,29 @@ def login():
 def search():
     global browser, args
     browser.get('https://www.immobilienscout24.de/')
+    # rent
     browser.find_element_by_id('oss-price').send_keys(args.rent)
+    # the minimum space of the flat
     browser.find_element_by_id('oss-area').send_keys(args.space)
+    # own or shared flat
     typeSelect = Select(browser.find_element_by_id(
         'oss-real-estate-type-rent'))
     if args.own:
         typeSelect.select_by_value('APARTMENT_RENT')
     else:
         typeSelect.select_by_value('FLAT_SHARE_ROOM')
+    # city
     cityInput = browser.find_element_by_id('oss-location')
     cityInput.send_keys(args.city)
     time.sleep(1)
     cityInput.send_keys(Keys.ENTER)
     time.sleep(1)
+
+    # area/radius to search for
+    searchAreaSelect = Select(browser.find_element_by_id('oss-radius'))
+    searchAreaSelect.select_by_value('Km' + str(args.area))
+    time.sleep(2)
+
     browser.find_element_by_xpath(
         '//button[contains(@class, "oss-main-criterion oss-button button-primary one-whole")]').click()
 
@@ -232,9 +250,9 @@ def save_expose_info(link, file):
 
 load_dotenv()
 args = get_arguments()
-if not args.nv:  # disable those in nonverbose mode
-    print_start_message()
-    print_query(args)
+
+print_start_message()
+print_query(args)
 
 browser = webdriver.Chrome(os.getcwd() + '/chromedriver')
 
@@ -253,7 +271,10 @@ for link in expose_links:
     browser.find_element_by_css_selector('a[data-qa="sendButton"]').click()
     time.sleep(2)
     browser.find_element_by_id(
-        'contactForm-Message').send_keys(owner + ',\n' + args.text)
+        'contactForm-Message').send_keys(owner + ',\n\n' + args.text
+                                         + '\n\nMit freundlichen Grüßen\n'
+                                         + os.getenv('FIRSTNAME')
+                                         + ' ' + os.getenv('LASTNAME'))
     Select(browser.find_element_by_id('contactForm-salutation')
            ).select_by_value(os.getenv('GENDER'))
     browser.find_element_by_id(
