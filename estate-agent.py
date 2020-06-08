@@ -152,5 +152,14 @@ args = get_arguments()
 print_start_message()
 print_query(args)
 
-scraper = Scraper(args)
-scraper.start()
+while True:
+    try:
+        scraper = Scraper(args)
+        scraper.start()
+        waiting_time = int(os.getenv('WAIT_TIME_BETWEEN_SEARCHES_IN_MIN'))
+        print('\n[+] Waiting %d minutes before attempting new search...\n' %
+              waiting_time)
+        time.sleep(waiting_time * 60)
+    except:
+        print('\n[-] Program terminated.\n')
+        sys.exit()

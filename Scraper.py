@@ -154,7 +154,7 @@ class Scraper:
                 owner = self.save_expose_to_log(log_file)
                 self.fill_out_contact_form(owner)
         except:
-            print('\n[-] Program terminated.')
+            print('\n[-] Program terminated.\n')
         finally:
             log_file.close()
             self.browser.quit()
