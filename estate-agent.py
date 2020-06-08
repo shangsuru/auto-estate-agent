@@ -39,12 +39,12 @@ def get_arguments():
 
     if args.text:
         # save provided text to file
-        file = open('message.txt', 'w')
+        file = open('settings/message.txt', 'w')
         file.write(args.text)
         file.close()
-    elif os.path.isfile('message.txt') and os.path.getsize('message.txt') != 0:
+    elif os.path.isfile('settings/message.txt') and os.path.getsize('settings/message.txt') != 0:
         # when argument is not provided, take the saved text in the file
-        file = open('message.txt', 'r')
+        file = open('settings/message.txt', 'r')
         args.text = file.read()
     else:
         print(
