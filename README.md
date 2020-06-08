@@ -14,7 +14,7 @@ Use the package and environment manager [conda](https://docs.conda.io/en/latest/
 conda env create -f environment.yml
 ```
 
-Also set your credentials inside the .env file.
+Also set your credentials in the .env file within the settings folder.
 
 ## Usage
 

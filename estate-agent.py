@@ -48,7 +48,8 @@ def get_arguments():
         args.text = file.read()
     else:
         print(
-            '\n\t[-] Please provide the text to write to the owners using the -t argument.\n')
+            '\n[-] Please provide the text to write to the owners using the -t argument'
+            + ' or directly write to message.txt inside the settings folder.\n')
         sys.exit()
 
     # set defaults for space and rent
@@ -145,7 +146,7 @@ def print_query(args):
             sys.exit()
 
 
-load_dotenv()
+load_dotenv(os.getcwd() + '/settings/.env')
 args = get_arguments()
 
 print_start_message()

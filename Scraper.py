@@ -9,9 +9,9 @@ from selenium.webdriver.support.ui import Select
 
 class Scraper:
     def __init__(self, args):
-        self.browser = webdriver.Chrome(os.getcwd() + '/chromedriver')
+        self.browser = webdriver.Chrome(os.getcwd() + '/drivers/chromedriver')
         self.args = args
-        load_dotenv()
+        load_dotenv(os.getcwd() + '/settings/.env')
 
     def login(self):
         self.browser.get(
@@ -135,7 +135,7 @@ class Scraper:
 
     def start(self):
         try:
-            name = 'log_' + str(int(time.time())) + '.txt'
+            name = 'log_' + time.strftime('%Y-%m-%d') + '.txt'
             log_file = open('logs/' + name, 'a+')
 
             self.login()
@@ -154,7 +154,7 @@ class Scraper:
                 owner = self.save_expose_to_log(log_file)
                 self.fill_out_contact_form(owner)
         except:
-            print('\nProgram terminated.')
+            print('\n[-] Program terminated.')
         finally:
             log_file.close()
             self.browser.quit()
