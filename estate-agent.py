@@ -60,11 +60,14 @@ def get_arguments():
     if not args.rent:
         args.rent = 0  # treated as infinity
 
-    # change chosen area to closest available option
-    options = [1, 2, 3, 4, 5, 10, 15, 20, 50]
-    distances = list(map(lambda option: abs(args.area - option), options))
-    args.area = options[distances.index(
-        min(distances))]
+    # change chosen area if available to closest available option
+    if args.area:
+        options = [1, 2, 3, 4, 5, 10, 15, 20, 50]
+        distances = list(map(lambda option: abs(args.area - option), options))
+        args.area = options[distances.index(
+            min(distances))]
+    else:
+        args.area = 10  # default: 10km radius
 
     return args
 
@@ -212,10 +215,9 @@ def get_expose_links():
     return expose_links
 
 
-def save_expose_info(link, file):
+def save_expose_info(file):
     global browser
-    browser.get(link)
-    time.sleep(2)
+
     title = browser.find_element_by_id('expose-title').text
     address = browser.find_element_by_xpath(
         '//span[contains(@class, "zip-region-and-country")]').text
@@ -248,8 +250,10 @@ def save_expose_info(link, file):
     return owner
 
 
+# load command line arguments and environment variables
 load_dotenv()
 args = get_arguments()
+
 
 print_start_message()
 print_query(args)
@@ -265,7 +269,18 @@ log_file = 'log_' + str(int(time.time())) + '.txt'
 file = open('logs/' + log_file, 'a+')
 
 for link in expose_links:
-    owner = save_expose_info(link, file)
+    # visit link
+    browser.get(link)
+    time.sleep(2)
+
+    try:
+        browser.find_element_by_xpath(
+            '//*[@title="Exposé merken"]')  # <3-button is unset: have not yet written to that expose
+    except:
+        continue  # <3-button is set: don't write again
+
+    # save all the information into the log
+    owner = save_expose_info(file)
 
     # fill out the contact form
     browser.find_element_by_css_selector('a[data-qa="sendButton"]').click()
